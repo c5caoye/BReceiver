@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">BReceiver</string>
+
+    <string name="main_currentSettingTimeDefault">x seconds</string>
+    <string name="main_yourCurrentSettingIs">Your current setting is</string>
+    <string name="main_keyInTime">Key in time (in seconds)</string>
+    <string name="main_custBtn">Custom filter (upcoming)</string>
+
+    <string name="apply">Apply</string>
+
+    <string name="save_timeSetting">time_setting</string>
+</resources>

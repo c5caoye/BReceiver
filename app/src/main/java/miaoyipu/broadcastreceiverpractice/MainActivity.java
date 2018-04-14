@@ -1,0 +1,145 @@
+package miaoyipu.broadcastreceiverpractice;
+
+
+import android.annotation.TargetApi;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Build;
+import android.provider.Settings;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+
+import miaoyipu.broadcastreceiverpractice.Service.MyBroadcastReceiver;
+
+public class MainActivity extends AppCompatActivity {
+    private Button submitBtn;
+    private SeekBar seekbar;
+    private TextView timeSettingTxt;
+    private int timeSetting;
+    private SharedPreferences sharedPref;
+
+    private View.OnClickListener submitBtnOnclick = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            startAlert(view);
+        }
+    };
+    private SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
+        int progress;
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+            progress = (i + 1) * 30;
+            String st = Integer.toString(progress) + " seconds";
+            timeSettingTxt.setText(st);
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            //TODO: Save setting
+            timeSetting = progress;
+            SharedPreferences.Editor editor = sharedPref.edit();
+            editor.putInt(getString(R.string.save_timeSetting), progress);
+            editor.commit();
+        }
+    };
+
+    private static final int MY_PERMISSION_REQUEST_SYSALERT = 11; // TODO: Move to another class
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        handlePermission();
+
+        submitBtn = (Button) findViewById(R.id.main_submitBtn);
+        submitBtn.setOnClickListener(submitBtnOnclick);
+        seekbar = (SeekBar) findViewById(R.id.main_seekBar);
+        seekbar.setOnSeekBarChangeListener(seekBarChangeListener);
+        timeSetting = seekbar.getProgress() * 30; // TODO: Should be changed to read value from storage.
+        timeSettingTxt = (TextView) findViewById(R.id.main_currentSettingTime);
+        timeSettingTxt.setText(Integer.toString(timeSetting) + " seconds");
+
+        readSettings();
+    }
+
+    public void startAlert(View view) {
+        Intent intent = new Intent(this, MyBroadcastReceiver.class);
+        intent.setAction(MUtili.ACTION_MYP_ALARM);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                this.getApplicationContext(), 415411, intent, 0);
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (timeSetting * 1000), pendingIntent);
+
+        Toast.makeText(this, "Alarm set in " + timeSetting + " senconds", Toast.LENGTH_LONG).show();
+    }
+
+    public void handlePermission() {
+//        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SYSTEM_ALERT_WINDOW)
+//                != PackageManager.PERMISSION_GRANTED) {
+//            // Permission is not granted
+//            // TODO: Handle permission explanation
+//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SYSTEM_ALERT_WINDOW},
+//                    MY_PERMISSION_REQUEST_SYSALERT);
+//        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.canDrawOverlays(this)) {
+                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName()));
+                startActivityForResult(intent, MY_PERMISSION_REQUEST_SYSALERT);
+            }
+        }
+    }
+
+    private void readSettings() {
+        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        timeSetting = sharedPref.getInt(getString(R.string.save_timeSetting), MUtili.TIME_SETTING_DEFAULT);
+        seekbar.setProgress(timeSetting / 30 - 1);
+    }
+
+    @TargetApi(Build.VERSION_CODES.M)
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == MY_PERMISSION_REQUEST_SYSALERT) {
+            if (Settings.canDrawOverlays(this)) {
+                Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show();
+            } else {
+                System.exit(1);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch(requestCode) {
+            case MY_PERMISSION_REQUEST_SYSALERT: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "Permission granted", Toast.LENGTH_SHORT).show();
+                } else {
+                    //TODO: Handle permission denied
+                }
+            }
+        }
+    }
+}
