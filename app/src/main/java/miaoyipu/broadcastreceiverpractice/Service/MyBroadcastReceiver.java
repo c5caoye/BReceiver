@@ -14,17 +14,37 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
 
         String action = intent.getAction();
 
-        if (action != null && action == MUtili.ACTION_MYP_ALARM) {
-
-            Toast.makeText(context, "Time up", Toast.LENGTH_SHORT).show();
-            Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-            vibrator.vibrate(1000);
-
-            Intent filterService = new Intent(context, ScreenFilter.class);
-            context.startService(filterService);
-        } else if (action != null && action == MUtili.ACTION_SNOOZE_FILTER) {
-            Intent filterService = new Intent(context, ScreenFilter.class);
-            context.stopService(filterService);
+        switch (action) {
+            case MUtili.ACTION_MYP_ALARM: {
+                startFilter(context);
+            }
+            case MUtili.ACTION_SNOOZE_FILTER: {
+//                snoozeFilter(context);
+            }
+            case MUtili.ACTION_STOP_FILTER: {
+                stopFilter(context);
+            }
+            default: {}
         }
+    }
+
+    private void startFilter(Context context) {
+        // Vibrate for 1 sec
+        Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        vibrator.vibrate(1000);
+        // Make toast
+        Toast.makeText(context, "Time up", Toast.LENGTH_SHORT).show();
+        // Start screen filter
+        Intent filterIntent = new Intent(context, ScreenFilter.class);
+        context.startService(filterIntent);
+    }
+
+    private void snoozeFilter(Context context) {
+        Intent filterIntent = new Intent(context, ScreenFilter.class);
+        context.stopService(filterIntent);
+    }
+
+    private void stopFilter(Context context) {
+
     }
 }

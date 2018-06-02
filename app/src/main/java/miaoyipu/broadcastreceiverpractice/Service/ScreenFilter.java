@@ -14,6 +14,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import miaoyipu.broadcastreceiverpractice.MUtili;
 import miaoyipu.broadcastreceiverpractice.MainActivity;
@@ -25,8 +26,8 @@ public class ScreenFilter extends Service {
     private WindowManager.LayoutParams myLayoutParams;
     private WindowManager myWindowManager;
     private int i = 0;
-    private final int NOTIFICATION_ID = 3213;
-    private final String NOTIFICATION_CHANNEL = "Noti_Channel";
+    private final int NOTIFICATION_ID = MUtili.NOT_ID;
+    private final String NOTIFICATION_CHANNEL = MUtili.NOT_CHANNEL;
     private NotificationManager notManager;
     private Thread timer;
 
@@ -93,12 +94,14 @@ public class ScreenFilter extends Service {
             public void run() {
                 while (i < 60) {
                     if (Thread.currentThread().isInterrupted()) {
-                        return;
+                        break;
                     }
                     try {
                         Thread.sleep(1000);
-                        myView.update();
-                        myView.postInvalidate();
+                        if (myView != null) {
+                            myView.update();
+                            myView.postInvalidate();
+                        }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     } catch (Exception e) {
@@ -122,7 +125,7 @@ public class ScreenFilter extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        ((WindowManager) getSystemService(WINDOW_SERVICE)).removeView(myView);
+        myWindowManager.removeView(myView);
         myView = null;
         notManager.cancelAll();
         timer.interrupt();
