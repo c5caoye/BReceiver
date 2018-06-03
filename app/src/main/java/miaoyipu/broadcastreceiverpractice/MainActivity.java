@@ -13,6 +13,7 @@ import android.os.Build;
 import android.provider.Settings;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,6 +28,7 @@ import java.io.FileOutputStream;
 import miaoyipu.broadcastreceiverpractice.Service.MyBroadcastReceiver;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
     private static final int MY_PERMISSION_REQUEST_SYSALERT = 11; // TODO: Move to another class
     private Button submitBtn;
     private Button debugBtn;  //TODO: Remove this after done
@@ -101,8 +103,10 @@ public class MainActivity extends AppCompatActivity {
     public void startAlert(View view) {
         Intent intent = new Intent(this, MyBroadcastReceiver.class);
         intent.setAction(MUtili.ACTION_MYP_ALARM);
+        int requestId = (int) System.currentTimeMillis();
         PendingIntent pendingIntent =
-                PendingIntent.getBroadcast(this, MUtili.BR_CODE, intent, 0);
+                PendingIntent.getBroadcast(this, requestId , intent, 0);
+        Log.d(TAG, "PendingIntent " + requestId + " created.");
         alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (timeSetting * 1000), pendingIntent);
 
         Toast.makeText(this, "Alarm set in " + timeSetting + " secs...", Toast.LENGTH_SHORT).show();
@@ -112,8 +116,10 @@ public class MainActivity extends AppCompatActivity {
     public void startAlertImmediately(View view) {
         Intent intent = new Intent(this, MyBroadcastReceiver.class);
         intent.setAction(MUtili.ACTION_MYP_ALARM);
+        int requestId = (int) System.currentTimeMillis();
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                this.getApplicationContext(), MUtili.BR_CODE, intent, 0);
+                this.getApplicationContext(), requestId, intent, 0);
+        Log.d(TAG, "PendingIntent " + requestId + " created.");
         alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + (3000), pendingIntent);
 
         Toast.makeText(this, "Alarm set in 3 secs...", Toast.LENGTH_SHORT).show();

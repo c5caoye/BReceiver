@@ -26,8 +26,6 @@ public class ScreenFilter extends Service {
     private WindowManager.LayoutParams myLayoutParams;
     private WindowManager myWindowManager;
     private int i = 0;
-    private final int NOTIFICATION_ID = MUtili.NOT_ID;
-    private final String NOTIFICATION_CHANNEL = MUtili.NOT_CHANNEL;
     private NotificationManager notManager;
     private Thread timer;
 
@@ -63,27 +61,34 @@ public class ScreenFilter extends Service {
 
         Intent snoozeIntent = new Intent(this, MyBroadcastReceiver.class);
         snoozeIntent.setAction(MUtili.ACTION_SNOOZE_FILTER);
-        PendingIntent snoozePendingIntent = PendingIntent.getBroadcast(this, 0, snoozeIntent, 0);
+        PendingIntent snoozePendingIntent = PendingIntent.getBroadcast(this, MUtili.NOT_SNOOZE_ID, snoozeIntent, 0);
+
+        NotificationCompat.Action snoozeAction =
+                new NotificationCompat.Action.Builder(
+                        R.drawable.ic_notification,
+                        getString(R.string.noti_snooze),
+                        snoozePendingIntent).build();
 
         NotificationCompat.Builder notBuilder =
-                new NotificationCompat.Builder(getApplicationContext(), NOTIFICATION_CHANNEL)
+                new NotificationCompat.Builder(getApplicationContext(), MUtili.NOT_CHANNEL)
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle("Test")
                 .setContentText("Filter is running.")
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
-                .addAction(R.drawable.ic_notification, "Snooze the filter", snoozePendingIntent);
+                .addAction(snoozeAction);
 
         notManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 
+        /* Starting in Android 8.0, all notifications must be assigned to a channel. */
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             NotificationChannel channel =
-                    new NotificationChannel(NOTIFICATION_CHANNEL, "Filter Notification", NotificationManager.IMPORTANCE_DEFAULT);
+                    new NotificationChannel(MUtili.NOT_CHAANEL_ID, MUtili.NOT_CHANNEL, NotificationManager.IMPORTANCE_DEFAULT);
             notManager.createNotificationChannel(channel);
         }
 
-        notManager.notify(NOTIFICATION_ID, notBuilder.build());
+        notManager.notify(MUtili.NOT_ID, notBuilder.build());
 
         updateRun();
     }

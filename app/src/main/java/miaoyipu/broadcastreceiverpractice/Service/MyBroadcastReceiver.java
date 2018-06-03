@@ -4,11 +4,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Vibrator;
+import android.util.Log;
 import android.widget.Toast;
 
 import miaoyipu.broadcastreceiverpractice.MUtili;
 
 public class MyBroadcastReceiver extends BroadcastReceiver {
+    private static final String TAG = "BCReceiver";
+
     @Override
     public void onReceive(Context context, Intent intent) {
 
@@ -19,7 +22,8 @@ public class MyBroadcastReceiver extends BroadcastReceiver {
                 startFilter(context);
             }
             case MUtili.ACTION_SNOOZE_FILTER: {
-//                snoozeFilter(context);
+                Log.d(TAG, "Snooze filter action received");
+                snoozeFilter(context);
             }
             case MUtili.ACTION_STOP_FILTER: {
                 stopFilter(context);

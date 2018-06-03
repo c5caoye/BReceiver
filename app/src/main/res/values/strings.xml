@@ -9,4 +9,5 @@
     <string name="apply">Apply</string>
 
     <string name="save_timeSetting">time_setting</string>
+    <string name="noti_snooze">Snooze</string>
 </resources>

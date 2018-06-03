@@ -6,9 +6,12 @@ public class MUtili {
     // Pending intent broadcast request code
     public static final int BR_CODE = 415411;
     public static final int NOT_ID = 3213;
-    public static final String NOT_CHANNEL = "NOTI CHANNEL MYP";
+    public static final int NOT_SNOOZE_ID = 3214;
     // Default filter start time
     public static final int TIME_SETTING_DEFAULT = 90;
+
+    public static final String NOT_CHANNEL = "GENERAL NOTI";
+    public static final String NOT_CHAANEL_ID = "NOTI CHANNEL MYP";
 
     /* ACTIONS */
     // Snooze the screen filter for a short period of time
